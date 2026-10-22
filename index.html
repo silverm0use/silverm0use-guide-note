@@ -234,6 +234,7 @@ async function createPersistentStore(){
 }
 
 const appStore = await createPersistentStore();
+let layoutStyle=appStore.getItem('meritz_layout_style_v1')||'list';if(!['original','mobile','list','text','business'].includes(layoutStyle))layoutStyle='list';
 let categories=JSON.parse(appStore.getItem('meritz_categories_v2')||'null')||SMARTNOTE_DEFAULT_CATEGORIES||['전체','신규 파트너스','업무 시작','전산·고객등록','보장분석·제안서','청약·계약','상품별 알릴의무','수수료·시책','활동 관리','FAQ'];
 if(categories.includes('신규 파트너')){categories=categories.map(c=>c==='신규 파트너'?'신규 파트너스':c).filter((c,i,a)=>a.indexOf(c)===i);appStore.setItem('meritz_categories_v2',JSON.stringify(categories));}
 // 기존 사용자의 로컬 메뉴에도 새 기본 메뉴를 한 번 추가하되 다른 메뉴와 자료는 유지합니다.
@@ -410,7 +411,7 @@ const themePresets=[['핑크','#db6290','#fff8fa'],['네이비','#17365d','#f4f7
 let themeState;try{themeState=JSON.parse(appStore.getItem('meritz_theme_v2'))}catch(e){}if(!themeState)themeState={accent:'#ff710a',bg:'#fff9f4'};
 const defaultExtraColors={barText:'#ffffff',menuText:'#273448',memoTitle:'#273448',memoBody:'#475569',cardBg:'#ffffff'};
 let extraColors;try{extraColors=JSON.parse(appStore.getItem('meritz_extra_colors_v1'))}catch(e){}extraColors={...defaultExtraColors,...extraColors};
-let layoutStyle=appStore.getItem('meritz_layout_style_v1')||'list';if(!['original','mobile','list','text','business'].includes(layoutStyle))layoutStyle='list';
+// layoutStyle initialized before any rendering or event handlers.
 function applyTheme(){const root=document.documentElement;root.style.setProperty('--accent',themeState.accent);root.style.setProperty('--accent-dark',themeState.accent);root.style.setProperty('--page',themeState.bg);root.style.setProperty('--bar-text',extraColors.barText);root.style.setProperty('--menu-text',extraColors.menuText);root.style.setProperty('--memo-title',extraColors.memoTitle);root.style.setProperty('--memo-body',extraColors.memoBody);root.style.setProperty('--card-bg',extraColors.cardBg);document.body.dataset.layout=layoutStyle;document.querySelector('meta[name="theme-color"]').content=themeState.accent;appStore.setItem('meritz_theme_v2',JSON.stringify(themeState));appStore.setItem('meritz_extra_colors_v1',JSON.stringify(extraColors));appStore.setItem('meritz_layout_style_v1',layoutStyle);$('customAccent').value=themeState.accent;$('customBg').value=themeState.bg;$('layoutStyle').value=layoutStyle;for(const [id,key] of [['colorBarText','barText'],['colorMenuText','menuText'],['colorMemoTitle','memoTitle'],['colorMemoBody','memoBody'],['colorCardBg','cardBg']])$(id).value=extraColors[key];renderSwatches()}
 function renderSwatches(){let h=$('swatches');h.innerHTML='';for(const [label,color,bg] of themePresets){let b=document.createElement('button');b.className='swatch'+(themeState.accent===color?' selected':'');b.style.background=color;b.title=label;b.setAttribute('aria-label',label);b.onclick=()=>{themeState={accent:color,bg};applyTheme()};h.append(b)}}
 function persistCategories(){appStore.setItem('meritz_categories_v2',JSON.stringify(categories));updateCategorySelect();render();renderCategoryEditor()}
